@@ -1,0 +1,7 @@
+numpy
+tensorflow
+sklearn
+pandas
+scipy 
+os
+prince
