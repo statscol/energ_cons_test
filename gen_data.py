@@ -32,7 +32,7 @@ import prince as pr ##por MCA
 
 time_init=datetime.datetime.now()
 
-data=pd.read_csv("DBCaribeSol.txt",sep="|",decimal=",")
+data=pd.read_csv("dataini.txt",sep="|",decimal=",")
 
 
 data_consumo=data.groupby('Id_SubCategoria').ValorAnterior.agg({'mean','median','min','max','std'})
@@ -58,7 +58,6 @@ def simula_cons_energy(N_SAMPLES=10000,p_pago=0.9):
     p_pago: probabilidad de que las personas paguen su última obligación
   """
 
-  p_pago=0.9
   props_est = data.groupby('Id_SubCategoria')['Id_SubCategoria'].count()/data.shape[0]
   props_loc= data.groupby('Localidad')['Localidad'].count()/data.shape[0]
   LOCALIDAD=choice(props_loc.index.values, N_SAMPLES, p=props_loc.values)
@@ -68,7 +67,7 @@ def simula_cons_energy(N_SAMPLES=10000,p_pago=0.9):
   print(f"Unidades de Consumo negativas se reemplazarán por {med_cal}")
   UNIDADES=np.where(np.array(UNIDADES)<=0,med_cal,UNIDADES)
   VALOR_CONS=[UNIDADES[i]*kwh_cost[ESTRATO[i]][0] for i in range(N_SAMPLES)]
-  VALORDEF=np.quantile(VALOR_CONS,0.75)
+  VALORDEF=np.quantile(VALOR_CONS,p_pago)
   print(f"Considerando No pagos con valores de factura superiores a {VALORDEF}")
   NO_PAGO_ULTIMO=[0 if i<=VALORDEF else 1 for i in VALOR_CONS]
   data_out=pd.DataFrame({'localidad':LOCALIDAD,'estrato':ESTRATO,'valor_ant':VALOR_CONS,'unidades_ant':UNIDADES,'no_pago_ultimo':NO_PAGO_ULTIMO})
